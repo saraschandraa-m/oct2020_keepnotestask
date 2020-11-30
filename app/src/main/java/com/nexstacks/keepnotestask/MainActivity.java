@@ -2,15 +2,20 @@ package com.nexstacks.keepnotestask;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -27,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Items> taskItems;
 
+    private DatabaseHelper dbHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
         btnAddTask.setEnabled(false);
 
         taskItems = new ArrayList<>();
+        dbHelper = new DatabaseHelper(MainActivity.this);
     }
 
     public void onAddItemClicked(View view) {
@@ -97,8 +105,11 @@ public class MainActivity extends AppCompatActivity {
 
         Task newTask = new Task();
         newTask.taskTitle = mEtTitle.getText().toString();
-        newTask.taskItems = taskItems;
+        newTask.taskItems = Items.convertArrayListToJSONArrayString(taskItems);
 
+        dbHelper.insertDataToDatabase(dbHelper.getWritableDatabase(), newTask);
 
+        setResult(Activity.RESULT_OK);
+        finish();
     }
 }
