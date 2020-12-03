@@ -64,4 +64,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return items;
     }
+
+    public void updateItemsInDatabase(SQLiteDatabase db, Task task){
+        ContentValues cv = new ContentValues();
+        cv.put(COL_TITLE, task.taskTitle);
+        cv.put(COL_ITEMS, task.taskItems);
+        db.update(TABLE_NAME, cv, COL_ID + "="+task.id , null);
+    }
 }

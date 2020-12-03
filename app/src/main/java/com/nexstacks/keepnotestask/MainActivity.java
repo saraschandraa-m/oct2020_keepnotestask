@@ -34,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
 
     private DatabaseHelper dbHelper;
 
+    private boolean isUpdate = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +50,34 @@ public class MainActivity extends AppCompatActivity {
 
         taskItems = new ArrayList<>();
         dbHelper = new DatabaseHelper(MainActivity.this);
+
+        Bundle data = getIntent().getExtras();
+        if (data != null) {
+            isUpdate = data.getBoolean("ISUPDATE");
+            Task updatedTask = (Task) data.getSerializable("TASK");
+
+
+            if (isUpdate && updatedTask != null) {
+                ArrayList<Items> updatedItems = Items.convertJSONArrayStringToArrayList(updatedTask.taskItems);
+                mEtTitle.setText(updatedTask.taskTitle);
+                for (int i = 0; i < updatedItems.size(); i++) {
+                    View dView = LayoutInflater.from(MainActivity.this).inflate(R.layout.cell_item_entry, null);
+                    final EditText mEtItem = dView.findViewById(R.id.et_item);
+                    final ImageView mIvDone = dView.findViewById(R.id.iv_item_done);
+
+                    mEtItem.setText(updatedItems.get(i).itemName);
+
+                    mIvDone.setVisibility(View.INVISIBLE);
+                    mLlDynamicLayout.addView(dView);
+
+                    itemID = i + 1;
+
+                    taskItems.add(updatedItems.get(i));
+
+
+                }
+            }
+        }
     }
 
     public void onAddItemClicked(View view) {
@@ -88,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
                 Items newItem = new Items();
                 newItem.id = itemID;
                 newItem.itemName = mEtItem.getText().toString();
-                newItem.isChecked =false;
+                newItem.isChecked = false;
 
                 taskItems.add(newItem);
             }
@@ -98,8 +128,8 @@ public class MainActivity extends AppCompatActivity {
         mLlDynamicLayout.addView(dView);
     }
 
-    public void onAddTaskClicked(View view){
-        if(mEtTitle.getText().toString().isEmpty()){
+    public void onAddTaskClicked(View view) {
+        if (mEtTitle.getText().toString().isEmpty()) {
             return;
         }
 
@@ -107,7 +137,11 @@ public class MainActivity extends AppCompatActivity {
         newTask.taskTitle = mEtTitle.getText().toString();
         newTask.taskItems = Items.convertArrayListToJSONArrayString(taskItems);
 
-        dbHelper.insertDataToDatabase(dbHelper.getWritableDatabase(), newTask);
+        if (!isUpdate) {
+            dbHelper.insertDataToDatabase(dbHelper.getWritableDatabase(), newTask);
+        } else {
+            dbHelper.updateItemsInDatabase(dbHelper.getWritableDatabase(), newTask);
+        }
 
         setResult(Activity.RESULT_OK);
         finish();
