@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -26,9 +27,15 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskLi
 
     private TaskListClickListener listener;
 
+    private ArrayList<Integer> selectedPositions; // [1,2]
+
+
+    // [2, 3, 0, 1]
+
     public TaskListAdapter(Context context, ArrayList<Task> tasks) {
         this.tasks = tasks;
         this.context = context;
+        this.selectedPositions = new ArrayList<>();
     }
 
     public void setListener(TaskListClickListener listener) {
@@ -46,8 +53,14 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskLi
     }
 
     @Override
-    public void onBindViewHolder(@NonNull TaskListHolder holder, int position) {
+    public void onBindViewHolder(@NonNull TaskListHolder holder, final int position) {
         final Task item = tasks.get(position);
+
+        if(selectedPositions.contains(position)){
+            holder.mCdRoot.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.bg_rect_selected, null));
+        }else{
+            holder.mCdRoot.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.bg_rect_unselected, null));
+        }
 
         holder.mTvTaskTitle.setText(item.taskTitle);
 
@@ -59,6 +72,24 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskLi
                 if(listener != null){
                     listener.onTaskClicked(item);
                 }
+            }
+        });
+
+        holder.mCdRoot.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if(selectedPositions.contains(position)) {
+                    selectedPositions.remove(Integer.valueOf(position));
+//                    selectedPositions.remove(position);
+                }else{
+                    selectedPositions.add(position);
+                }
+
+                if(listener != null){
+                    listener.onMultiSelectClicked(selectedPositions);
+                }
+                notifyDataSetChanged();
+                return true;
             }
         });
 
@@ -116,5 +147,7 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskLi
         void onItemUpdateClicked(Items updatedItem, Task task, boolean checkedValue);
 
         void onTaskClicked(Task task);
+
+        void onMultiSelectClicked(ArrayList<Integer> selectedPositions);
     }
 }

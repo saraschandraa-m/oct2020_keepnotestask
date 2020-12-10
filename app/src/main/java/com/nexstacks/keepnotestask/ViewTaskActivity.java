@@ -1,13 +1,17 @@
 package com.nexstacks.keepnotestask;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -20,11 +24,19 @@ public class ViewTaskActivity extends AppCompatActivity implements TaskListAdapt
     private RecyclerView mRcTasks;
 
     private DatabaseHelper dbHelper;
+    private Menu menu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_task);
+
+        Toolbar mToolbar = findViewById(R.id.tl_view_tasks);
+        setSupportActionBar(mToolbar);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("MyTasks");
+        }
 
         mRcTasks = findViewById(R.id.rc_tasks);
         mRcTasks.setLayoutManager(new GridLayoutManager(this, 2));
@@ -32,6 +44,19 @@ public class ViewTaskActivity extends AppCompatActivity implements TaskListAdapt
         dbHelper = new DatabaseHelper(ViewTaskActivity.this);
 
         setDataToRecycler();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_view, menu);
+        this.menu = menu;
+        menu.getItem(0).setVisible(false);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        return true;
     }
 
     public void onAddNewTaskClicked(View view) {
@@ -47,7 +72,7 @@ public class ViewTaskActivity extends AppCompatActivity implements TaskListAdapt
 //            setDataToRecycler();
 //        }
 
-        if(resultCode == Activity.RESULT_OK && (requestCode == 913 || requestCode == 432)){
+        if (resultCode == Activity.RESULT_OK && (requestCode == 913 || requestCode == 432)) {
             setDataToRecycler();
         }
     }
@@ -82,7 +107,6 @@ public class ViewTaskActivity extends AppCompatActivity implements TaskListAdapt
         }
 
 
-
         Task updatedTask = new Task();
         updatedTask.id = task.id;
         updatedTask.taskTitle = task.taskTitle;
@@ -99,5 +123,14 @@ public class ViewTaskActivity extends AppCompatActivity implements TaskListAdapt
                         .putExtra("TASK", task)
                         .putExtra("ISUPDATE", true),
                 432);
+    }
+
+    @Override
+    public void onMultiSelectClicked(ArrayList<Integer> selectedPositions) {
+        if(selectedPositions.size() > 0){
+            menu.getItem(0).setVisible(true);
+        }else{
+            menu.getItem(0).setVisible(false);
+        }
     }
 }

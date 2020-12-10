@@ -7,16 +7,30 @@
     tools:context=".ViewTaskActivity">
 
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rc_tasks"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/tl_view_tasks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:minHeight="?attr/actionBarSize" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rc_tasks"
+            android:layout_below="@+id/tl_view_tasks"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </RelativeLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:layout_width="70dp"
         android:layout_height="70dp"
-        android:onClick="onAddNewTaskClicked"
         android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"/>
+        android:layout_margin="16dp"
+        android:onClick="onAddNewTaskClicked" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
